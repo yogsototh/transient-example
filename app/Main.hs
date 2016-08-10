@@ -1,6 +1,10 @@
 module Main where
 
-import Lib (startServer)
+import PeekPoke (peekPoke)
+import Hello (hello)
+
+import GHCJS.HPlay.View
+import Transient.Base
 
 main :: IO ()
-main = startServer
+main = keep . initNode . onBrowser $ peekPoke <|> hello
