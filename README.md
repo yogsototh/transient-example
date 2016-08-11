@@ -6,7 +6,27 @@ This is a stack project which implement this example Transient project:
 
 ## Usage
 
+### Fastest
+
+Just open a terminal and write all these commands.
+If this is the first time you use Haskell it will take a lot of time.
+Don't worry, once installed, calling `compile.sh` will be fast the next time.
+
+~~~
+git clone http://github.com/yogsototh/transient-example
+cd transient-example
+./compile.sh
+./start.sh
+~~~
+
+### Manually
+
 1. Install [`stack`](haskellstack.org)
+   
+   ~~~
+   curl -sSL https://get.haskellstack.org/ | sh
+   ~~~
+
 2. Install ghc and ghcjs with stack.
    If you never installed ghcjs that could take a _lot_ of time.
    
