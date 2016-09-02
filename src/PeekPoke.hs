@@ -48,7 +48,7 @@ peek model = do
   msg <- atRemote . local $ getMailbox pokeMessages :: Cloud Msg
   local $ render $ do
     n <- liftIO $ atomicModifyIORef model (update msg)
-    at (fs "#pokes") Insert . rawHtml  $ p $  "Pokes: " ++  show n
+    at (fs "#pokes") Insert . rawHtml  $ h1 $  "Pokes: " ++  show n
 
 fs :: IsString a => String -> a
 fs = fromString

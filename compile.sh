@@ -1,7 +1,7 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash -x
 
 if command -v stack >/dev/null 2>&1
-then echo "stack already installed."
+then echo "stack is already installed."
 else
     echo "stack is not installed. I will try to install it."
     curl -sSL https://get.haskellstack.org/ | sh
