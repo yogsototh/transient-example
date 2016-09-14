@@ -18,8 +18,8 @@ data Msg = Increase | Decrease deriving (Read, Show, Typeable)
 
 peekPoke :: Cloud ()
 peekPoke = do
-   model <- onAll . liftIO $ newIORef 0
-   poke  <|> peek model
+  model <- onAll . liftIO $ newIORef 0
+  poke  <|> peek model
 
 pokeMessages :: IsString a => a
 pokeMessages = fs "pokeMessages"
@@ -28,7 +28,7 @@ pokeMessages = fs "pokeMessages"
 poke :: Cloud ()
 poke  =  do
     msg <- local $ render $ do
-       rawHtml $ div  ! id (fs "pokes") $ h1 "Pokes: 0"
+       rawHtml $ div  ! id (fs "pokes") $ h1 "Pokes: ?"
        increaseButton <|> decreaseButton
     local $ render $ wprint msg
     -- update the mailbox in the server

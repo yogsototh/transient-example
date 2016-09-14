@@ -17,11 +17,13 @@ library
   hs-source-dirs:      src
   exposed-modules:     PeekPoke
                      , Hello
+                     , RWebsite
   build-depends:       base >= 4.7 && < 5
                      , transient
                      , transient-universe
                      , transformers
                      , ghcjs-hplay
+                     , containers
   default-language:    Haskell2010
 
 executable wse-exe
