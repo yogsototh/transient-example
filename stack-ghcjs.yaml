@@ -7,8 +7,8 @@ packages:
 
 extra-deps:
 - ghcjs-perch-0.3.3
-- transient-0.4.2
-- transient-universe-0.3.2.1
+- transient-0.4.2.2
+- transient-universe-0.3.2.3
 - ghcjs-hplay-0.3.4
 
 extra-package-dbs: []
@@ -22,3 +22,6 @@ setup-info:
       ghcjs-0.2.0.9006015_ghc-7.10.3:
         url: "https://tolysz.org/ghcjs/lts-6.15-9006015.tar.gz"
         sha1: 4d513006622bf428a3c983ca927837e3d14ab687
+
+docker:
+  enable: true

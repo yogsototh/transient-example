@@ -1,16 +1,23 @@
-#!/usr/bin/env bash -x
+#!/usr/bin/env bash
 
 minnodeversion=6.5.0
+if command -v docker >/dev/null 2>&1;
+then :
+else
+    echo "docker doesn't seem to be installed. Please install docker." >&2
+    exit 1
+fi
+
 if command -v node >/dev/null 2>&1
 then
     function version_gt() { test "$(echo "$@" | tr " " "\n" | sort -t '.' -k 1,1 -k 2,2 -k 3,3 -g | head -n 1)" != "$1"; }
     version=$(node --version|sed 's/^v//')
     if version_gt  $minnodeversion $version; then
-        echo "You should upgrade node.js to at least 6.5.0"
+        echo "You should upgrade node.js to at least 6.5.0" >&2
         exit 1
     fi
 else
-    echo "node.js is needed, please install a recent version (>=6.5.0)"
+    echo "node.js is needed, please install a recent version (>=6.5.0)" >&2
     exit 1
 fi
 
@@ -25,8 +32,8 @@ fi
 if command -v stack >/dev/null 2>&1
 then :
 else
-    echo "stack failed to install. Please install it manually."
-    echo "See informations at http://haskellstack.org"
+    echo "stack failed to install. Please install it manually." >&2
+    echo "See informations at http://haskellstack.org" >&2
     exit 1
 fi
 

@@ -18,13 +18,15 @@ data MyForm = MyForm { i1, i2 :: String } deriving (Show,Read,Typeable)
 
 data InitRWebsite = InitRWebsite (IORef MyForm) (EVar MyForm)
 
-rwebsite :: IO ()
-rwebsite = keep $ do
+initRWebsite = do
   rdata <- liftIO $ newIORef (MyForm "i1" "i2")
   dataAvailable <- newEVar
-  initNode $ formWidget rdata dataAvailable
-           <|> syncWidget dataAvailable
-           <|> longLivingProcess rdata dataAvailable
+  return (InitRWebsite rdata dataAvailable)
+
+rwebsite (InitRWebsite rdata dataAvailable) =
+  formWidget rdata dataAvailable
+  <|> syncWidget dataAvailable
+  <|> longLivingProcess rdata dataAvailable
 
 formWidget :: IORef MyForm -> EVar MyForm -> Cloud ()
 formWidget rdata dataAvailable = onBrowser $ do
