@@ -23,5 +23,5 @@ setup-info:
         url: "https://tolysz.org/ghcjs/lts-6.15-9006015.tar.gz"
         sha1: 4d513006622bf428a3c983ca927837e3d14ab687
 
-docker:
-  enable: true
+# docker:
+#   enable: true

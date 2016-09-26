@@ -9,7 +9,7 @@ fi
 
 echo "-----------------------"
 echo "Please open your browser on"
-echo "http://${dockerip}:3000"
+echo "http://${dockerip}:${1:-3000}"
 echo "-----------------------"
 
-stack exec -- wse-exe -p start/0.0.0.0/3000
+stack exec -- wse-exe -p start/0.0.0.0/${1:-3000}

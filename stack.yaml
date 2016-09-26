@@ -12,5 +12,5 @@ flags: {}
 
 extra-package-dbs: []
 
-docker:
-  enable: true
+# docker:
+#   enable: true
