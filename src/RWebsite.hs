@@ -17,14 +17,32 @@ import Data.Typeable (Typeable)
 
 -- Events
 data Msg = LoginFormUpdated LoginForm
-         | MyFormUpdated MyForm deriving (Show,Read,Typeable)
+         | MyFormUpdated MyForm
+         deriving (Show,Read,Typeable)
+
 data LoginForm = LoginForm { login :: String
-                           , pass :: String } deriving (Show,Read,Typeable)
-data MyForm = MyForm { i1, i2 :: String } deriving (Show,Read,Typeable)
+                           , pass :: String }
+               deriving (Show,Read,Typeable)
+
+data MyForm = MyForm { i1, i2 :: String }
+            deriving (Show,Read,Typeable)
 
 -- States
-data State = BeforeLogin | FailedLogin | Logged UserId | MyFormSent MyForm deriving (Show,Read,Typeable)
-newtype UserId = UserId String deriving (Show,Read,Typeable)
+data State = State LoginState MyFormState
+           deriving (Show,Read,Typeable)
+
+data LoginState = BeforeLogin
+                | FailedLogin
+                | Logged UserId
+                | AdminLogged UserId
+                deriving (Show,Read,Typeable)
+
+newtype UserId = UserId String
+               deriving (Show,Read,Typeable)
+
+data MyFormState = MyFormNotSendYet
+                 | MyFormSent MyForm
+                 deriving (Show,Read,Typeable)
 
 -- Init data structure
 data InitRWebsite = InitRWebsite (IORef State) (EVar Msg)
@@ -32,7 +50,7 @@ data InitRWebsite = InitRWebsite (IORef State) (EVar Msg)
 initRWebsite :: TransIO InitRWebsite
 initRWebsite = do
   -- generate initial state
-  rdata <- liftIO $ newIORef BeforeLogin
+  rdata <- liftIO $ newIORef $ State BeforeLogin MyFormNotSendYet
   -- initialize event bus
   dataAvailable <- newEVar
   -- return the init data structure
@@ -45,40 +63,34 @@ rwebsite (InitRWebsite rdata dataAvailable) =
   <|> longLivingProcess rdata dataAvailable
 
 frontend :: IORef State -> EVar Msg -> Cloud ()
-frontend rdata dataAvailable = onBrowser $
+frontend rdata dataAvailable = onBrowser $ do
   loginWidget rdata dataAvailable
-  -- <|> formWidget rdata dataAvailable
+  formWidget rdata dataAvailable
 
 loginWidget :: IORef State -> EVar Msg -> Cloud ()
-loginWidget rdata dataAvailable = onBrowser $ do
+loginWidget _ dataAvailable = do
   local . render . rawHtml $ h1 "Login Widget"
   loginForm <- local . render $
     LoginForm <$> getString Nothing `fire` OnChange
               <*> getString Nothing `fire` OnChange
   atRemote $ localIO $ writeEVar dataAvailable (LoginFormUpdated loginForm)
+
+formWidget :: IORef State -> EVar Msg -> Cloud ()
+formWidget rdata dataAvailable = do
   local . render . rawHtml $ h1 "MyForm Widget"
   st <- atRemote $ localIO $ readIORef rdata
   case st of
-    (Logged _) -> do
+    (State (Logged _) _) -> do
         myForm <- local . render $ MyForm <$> getString Nothing `fire` OnKeyUp
                                           <*> getString Nothing `fire` OnKeyUp
         atRemote $ localIO $ writeEVar dataAvailable (MyFormUpdated myForm)
+    (State (AdminLogged _) MyFormNotSendYet) -> 
+        local.render.rawHtml $ h1 "Waiting Formulary"
+    (State (AdminLogged _) (MyFormSent myForm)) ->
+        local.render.rawHtml $ do
+          h1 "Waiting Formulary"
+          div (show myForm)
     _ -> local . render .rawHtml $ h1 "FAILED"
-
--- formWidget :: IORef Msg -> EVar MyForm -> EVar LoginForm -> Cloud ()
--- formWidget rdata dataAvailable loginForm = onBrowser $ do
---   lf <- local $ readEVar loginForm
---   case lf of
---   then do
---        local . render . rawHtml $ do
---             h1 "Form Widget"
---             div ! id (fromString "msg") $ "No message yet."
---        st <- atRemote . localIO $ readIORef rdata -- read the state data
---        myForm <- local . render $ MyForm <$> getString (Just (i1 st)) `fire` OnKeyUp
---                             <*> getString (Just (i2 st)) `fire` OnKeyUp
---        -- notify the long living process
---        atRemote $ localIO $ writeEVar dataAvailable myForm
---   else local . render . rawHtml $ h2 "Wrong Login"
 
 syncWidget :: EVar Msg ->  Cloud ()
 syncWidget dataAvailable = onBrowser $ do
@@ -98,8 +110,8 @@ longLivingProcess rdata dataAvailable =
     liftIO $ print $ show state <> " inner state"
 
 update :: Msg -> State -> State  
-update (LoginFormUpdated (LoginForm "foo" "bar")) _ = Logged (UserId "foo")
-update (LoginFormUpdated _) _ = FailedLogin
-update (MyFormUpdated myForm) (Logged _)= MyFormSent myForm
-update (MyFormUpdated myForm) (MyFormSent _)= MyFormSent myForm
-update _ _ = FailedLogin
+update (LoginFormUpdated (LoginForm "foo" "bar")) (State _ mf) = State (Logged (UserId "foo")) mf
+update (LoginFormUpdated (LoginForm "admin" "admin")) (State _ mf) = State (AdminLogged (UserId "foo")) mf
+update (LoginFormUpdated _) (State _ mf) = State FailedLogin mf
+update (MyFormUpdated myForm) (State (Logged l) _) = State (Logged l) (MyFormSent myForm)
+update _ (State _ mf) = State FailedLogin mf
