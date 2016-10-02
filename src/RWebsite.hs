@@ -2,7 +2,7 @@ module RWebsite where
 
 -- The IORef play the role of a DB
 
-import Prelude hiding(div,id)
+import Prelude hiding(div,id,span)
 import Transient.Base
 import Transient.Move
 import Transient.EVars
@@ -85,12 +85,25 @@ formWidget rdata dataAvailable = do
                                           <*> getString Nothing `fire` OnKeyUp
         atRemote $ localIO $ writeEVar dataAvailable (MyFormUpdated myForm)
     (State (AdminLogged _) MyFormNotSendYet) -> 
-        local.render.rawHtml $ h1 "Waiting Formulary"
+        local.render.rawHtml $ h2 ! color "#662" $ "Waiting Formulary"
     (State (AdminLogged _) (MyFormSent myForm)) ->
         local.render.rawHtml $ do
-          h1 "Waiting Formulary"
-          div (show myForm)
+          h2 ! color "#283" $ "Received Formulary"
+          view myForm
     _ -> local . render .rawHtml $ h1 "FAILED"
+
+-- WARNING unsafe here
+color :: String -> Attribute
+color c = atr "style" (fromString ("color: " <> c))
+
+view :: MyForm -> Perch
+view myForm = div $ do
+  label "i1: "
+  span (i1 myForm)
+  br
+  label "i2: "
+  span (i2 myForm)
+
 
 syncWidget :: EVar Msg ->  Cloud ()
 syncWidget dataAvailable = onBrowser $ do

@@ -7,9 +7,9 @@ packages:
 
 extra-deps:
 - ghcjs-perch-0.3.3
-- transient-0.4.2.2
-- transient-universe-0.3.2.3
-- ghcjs-hplay-0.3.4
+- transient-0.4.4
+- transient-universe-0.3.5
+- ghcjs-hplay-0.3.4.2
 
 extra-package-dbs: []
 
